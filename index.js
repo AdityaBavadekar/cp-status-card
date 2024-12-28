@@ -45,7 +45,7 @@ app.get("/api/leetcode/:username", async (req, res) => {
         }
 
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.send(renderLeetcodeCard(userInfo));
+        res.send(await renderLeetcodeCard(userInfo));
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });
@@ -64,7 +64,7 @@ app.get("/api/cf/:username", async (req, res) => {
 
         const userInfo = user.result[0];
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.send(renderCodeForcesCard(userInfo));
+        res.send(await renderCodeForcesCard(userInfo));
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Internal Server Error" });

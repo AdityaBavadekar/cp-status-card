@@ -1,5 +1,7 @@
+import axios from 'axios';
+import { Buffer } from 'node:buffer';
 
-const renderLeetcodeCard = (userInfo) => {
+const renderLeetcodeCard = async (userInfo) => {
     let userFullName = '';
 
     if (userInfo.realName) {
@@ -13,6 +15,8 @@ const renderLeetcodeCard = (userInfo) => {
     const easyQuestionsSolvedText = userInfo.easySolved ? userInfo.easySolved : '0';
     const mediumQuestionsSolvedText = userInfo.mediumSolved ? userInfo.mediumSolved : '0';
     const hardQuestionsSolvedText = userInfo.hardSolved ? userInfo.hardSolved : '0';
+
+    const base64DataUrl = await downloadImageAndConvertToBase64(userInfo.userAvatar);
 
     const usernameColor = "#808080";
     const fontFamily = '"Arial, sans-serif"';
@@ -28,7 +32,7 @@ const renderLeetcodeCard = (userInfo) => {
             ${userFullName}'s Leetcode Stats
         </text>
 
-        <image x="55" y="52" width="24" height="24" href="${userInfo.userAvatar}" clip-path="url(#clip-circle)"/>
+        <image x="55" y="52" width="24" height="24" href="${base64DataUrl}" clip-path="url(#clip-circle)"/>
 
         <a href="https://leetcode.com/u/${userInfo.handle}" target="_blank" text-anchor="middle">
             <text x="200" y="70" font-family=${fontFamily} font-size="17" font-weight="bold" fill="${usernameColor}">${userInfo.handle}</text>
@@ -53,7 +57,7 @@ const renderLeetcodeCard = (userInfo) => {
     return cardHTML;
 }
 
-const renderCodeForcesCard = (userInfo) => {
+const renderCodeForcesCard = async (userInfo) => {
 
     let userFullName = '';
     if (userInfo.firstName) {
@@ -68,7 +72,9 @@ const renderCodeForcesCard = (userInfo) => {
     const rankText = userInfo.rank ? userInfo.rank : 'Unrated';
     const ratingText = userInfo.rating ? userInfo.rating : 'Unrated';
     const maxRatingText = userInfo.maxRating ? userInfo.maxRating : 'Unrated';
-    
+
+    const base64DataUrl = await downloadImageAndConvertToBase64(userInfo.avatar);
+
     const fontFamily = '"Arial, sans-serif"';
     const fontSizeText = '"15"';
     const usernameColor = getUsernameColor(userInfo.rating ? userInfo.rating : 0);
@@ -83,7 +89,7 @@ const renderCodeForcesCard = (userInfo) => {
             ${userFullName}'s Codeforces Stats
         </text>
         
-        <image x="55" y="78" width="24" height="24" href="${userInfo.avatar}" clip-path="url(#clip-circle)"/>
+        <image x="55" y="78" width="24" height="24" href="${base64DataUrl}" clip-path="url(#clip-circle)"/>
         
         <a href="https://codeforces.com/profile/${userInfo.handle}" target="_blank" text-anchor="middle">
             <text x="200" y="95" font-family=${fontFamily} font-size="17" font-weight="bold" text-anchor="middle" fill="${usernameColor}">${userInfo.handle}</text>
@@ -114,5 +120,16 @@ const getUsernameColor = (rating) => {
     if (rating < 2900) return "#A400FF"; // International Grandmaster
     return "#800080"; // Legendary Grandmaster
 };
+
+async function downloadImageAndConvertToBase64(imageUrl) {
+    try {
+        const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+        const base64Image = Buffer.from(response.data, 'binary').toString('base64');
+        return `data:image/jpeg;base64,${base64Image}`;
+    } catch (error) {
+        console.error('Error downloading or converting image:', error);
+        return null;
+    }
+}
 
 export { renderLeetcodeCard, renderCodeForcesCard };
